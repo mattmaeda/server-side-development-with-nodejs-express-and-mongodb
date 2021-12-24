@@ -88,23 +88,25 @@ favoriteRouter.route('/:dishId')
     Favorites.findOne({user: req.user._id})
     .then((favorite) => {
         var message;
+        var exists = false;
 
         if (favorite) {
-            if (favorite.favorites.indexOf(req.params.dishId) === -1) {
+            if (favorite.favorites.indexOf(req.params.dishId) < 0) {
                 message = "Not saved as a favorite dish";
             }
             else {
                 message = "Dish is one of your favorites";
+                exists = true;
             }
-            res,statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({"message": message});
         }
         else {
-            var err = new Error("You do not have any favorites");
-            err.status = 404;
-            return next(err);
+            message = "You do not have any favorites";
         }
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({"exists": exists, "message": message});
+
     }, (err) => next(err))
     .catch((err) => next(err));
 })
